@@ -3,21 +3,22 @@ public class MainClass {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		String hex = StaticMethods.StringToHex("Hello World!");
-//		System.out.println(hex);
-		String str = StaticMethods.HexToString(hex);
-//		System.out.println(str);
 		
-//		System.out.println(StringMethods.xorHex("57656c63", "54776f46"));
-		hex = "0000" + hex;
-		String plainText = "My name is Miras"; //";//And I like coding";
+		String plainText = "My name is miras and i like to code!";
+//		String plainText = "???5?w?M?qYU???Hb??UVS?-KvIG^|R2^K+f";
 		System.out.println("PlainText:\n"+plainText);
 		System.out.println("------------------------------------------");
-		twofish encrypt = 
-				new twofish(new KeyGen("1"), plainText);
-		String cypherText = encrypt.encrypt();
+		twofish tf = 
+				new twofish(new KeyGen("TwoFish is nice!"), plainText);
+		String cypherText = tf.encrypt();
 		System.out.println("\n------------------------------------------");
 		System.out.println("CypherText:\n"+cypherText);
+		System.out.println("\n------------------------------------------");
+		System.out.println("\n------------DECRYPTION--------------------");
+		System.out.println("\n------------------------------------------");
+		System.out.println("\n------------------------------------------");
+		System.out.println("\n------------------------------------------\n");
+		System.out.println(tf.decrypt(cypherText));
 	}
 
 }

@@ -4,11 +4,9 @@ import java.util.Arrays;
 import java.util.List;
 
 public class StaticMethods {
-	private static final int INT_BITS = 32;
-
 	// string input must be in blocks, add padding if necessary
 	// MUST ADD PADDING INCASE NEEDED
-	public static String StringToHex(String str) {
+	public static String[] StringToHex(String str) {
 		String out;
 		StringBuffer sb = new StringBuffer();
 		char ch[] = str.toCharArray();
@@ -17,19 +15,41 @@ public class StaticMethods {
 			sb.append(hexString);
 		}
 		out = sb.toString();
-		//pad the string with leading zeros so the length will be a power of 2
-		int len = nextPowerOf2(out.length());
+		// split string into blocks
+		String blocks[] = out.split("(?<=\\G.{32})");
+		// pad the string with leading zeros so the length will be a power of 2
+		// if length is less than 32 bytes, pad until 32 bytes
+		// if not split to blocks, but overall length should be a power of 2.
+		String paddedBlocks[] = padBlocks(blocks);
+
+		return paddedBlocks;
+	}
+
+	private static String[] padBlocks(String[] blocks) {
+		String[] paddedBlocks = new String[blocks.length];
+		for (int i = 0; i < blocks.length; i++) {
+			paddedBlocks[i] = padString(blocks[i]);
+		}
+		return paddedBlocks;
+	}
+
+	private static String padString(String str) {
+		int len = nextPowerOf2(str.length());
 		String temp = "";
-		for(int i=0;i<32-out.length();i++)
+		for (int i = 0; i < len - str.length(); i++)
 			temp += "0";
-		out = temp + out;
-		return out;
+		str = temp + str;
+		return str;
 	}
-	//returns the closest power of 2 to x
+
+	// returns the closest power of 2 to x
 	private static int nextPowerOf2(int x) {
-		int y = (int) Math.ceil(Math.log10(x)/Math.log10(2));
-		return (int) Math.pow(2, y);
+		if (x <= 32)
+			return 32;
+		int log2x = (int) Math.ceil(Math.log10(x) / Math.log10(2));
+		return (int) Math.pow(2, log2x);
 	}
+
 	// MUST REMOVE PADDING IF NECESSARY
 	public static String HexToString(String hex) {
 		String result = new String();
@@ -42,13 +62,17 @@ public class StaticMethods {
 		return result;
 	}
 
-	public static byte[] hexStringToByteArray(String s) {
-		int len = s.length();
-		byte[] data = new byte[len / 2];
-		for (int i = 0; i < len; i += 2) {
-			data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4) + Character.digit(s.charAt(i + 1), 16));
+	public static ArrayList<byte[]> hexStringToByteArrayList(String[] blocks) {
+		ArrayList<byte[]> ret = new ArrayList<>();
+		for (String s : blocks) {
+			int len = s.length();
+			byte[] data = new byte[len / 2];
+			for (int i = 0; i < len; i += 2) {
+				data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4) + Character.digit(s.charAt(i + 1), 16));
+			}
+			ret.add(data);
 		}
-		return data;
+		return ret;
 	}
 
 	public static byte[] xorByteArrays(byte[] arr1, byte[] arr2) {
@@ -79,58 +103,56 @@ public class StaticMethods {
 
 	// **************************************************************************************************//
 	public static byte[] ROR(byte[] arr, int n) {
-		
-		StringBuilder binBuilder = new StringBuilder();
-		for(int i=arr.length-1;i>=0;i--) {
-			byte x = arr[i];
-			//lower nibble
-			byte nibble = (byte) (x & 0x0F);
-			binBuilder.insert(0,Constants.hexToBin[(int) nibble]);
-			//higher nibble
-			x = (byte) (x>>4);
-			nibble = (byte) (x & 0x0F);
-			binBuilder.insert(0,Constants.hexToBin[(int) nibble]);
-		}
-		
 
-		String bin = binBuilder.toString(); 
+		StringBuilder binBuilder = new StringBuilder();
+		for (int i = arr.length - 1; i >= 0; i--) {
+			byte x = arr[i];
+			// lower nibble
+			byte nibble = (byte) (x & 0x0F);
+			binBuilder.insert(0, Constants.hexToBin[(int) nibble]);
+			// higher nibble
+			x = (byte) (x >> 4);
+			nibble = (byte) (x & 0x0F);
+			binBuilder.insert(0, Constants.hexToBin[(int) nibble]);
+		}
+
+		String bin = binBuilder.toString();
 		bin = rightrotate(bin, n);
-		
+
 		int idx = 0;
 		byte[] res = new byte[4];
-		for(int i=0;i<bin.length();i+=8) {
-			String curr = bin.substring(i, i+8);
-			res[idx++] = (byte) Integer.parseInt(curr,2);
+		for (int i = 0; i < bin.length(); i += 8) {
+			String curr = bin.substring(i, i + 8);
+			res[idx++] = (byte) Integer.parseInt(curr, 2);
 		}
-		
+
 		return res;
 	}
 
 	public static byte[] ROL(byte[] arr, int n) {
-		
-		StringBuilder binBuilder = new StringBuilder();
-		for(int i=arr.length-1;i>=0;i--) {
-			byte x = arr[i];
-			//lower nibble
-			byte nibble = (byte) (x & 0x0F);
-			binBuilder.insert(0,Constants.hexToBin[(int) nibble]);
-			//higher nibble
-			x = (byte) (x>>4);
-			nibble = (byte) (x & 0x0F);
-			binBuilder.insert(0,Constants.hexToBin[(int) nibble]);
-		}
-		
 
-		String bin = binBuilder.toString(); 
+		StringBuilder binBuilder = new StringBuilder();
+		for (int i = arr.length - 1; i >= 0; i--) {
+			byte x = arr[i];
+			// lower nibble
+			byte nibble = (byte) (x & 0x0F);
+			binBuilder.insert(0, Constants.hexToBin[(int) nibble]);
+			// higher nibble
+			x = (byte) (x >> 4);
+			nibble = (byte) (x & 0x0F);
+			binBuilder.insert(0, Constants.hexToBin[(int) nibble]);
+		}
+
+		String bin = binBuilder.toString();
 		bin = leftrotate(bin, n);
-		
+
 		int idx = 0;
 		byte[] res = new byte[4];
-		for(int i=0;i<bin.length();i+=8) {
-			String curr = bin.substring(i, i+8);
-			res[idx++] = (byte) Integer.parseInt(curr,2);
+		for (int i = 0; i < bin.length(); i += 8) {
+			String curr = bin.substring(i, i + 8);
+			res[idx++] = (byte) Integer.parseInt(curr, 2);
 		}
-		
+
 		return res;
 	}
 
@@ -192,13 +214,36 @@ public class StaticMethods {
 		}
 		return (byte) x;
 	}
-	
+
+	public static void printByteArrayList(ArrayList<byte[]> arr) {
+		StringBuilder toPrint = new StringBuilder("[");
+		for (byte[] bs : arr)
+			for (byte b : bs)
+				toPrint.append(String.format("%02x ", b));
+		toPrint.deleteCharAt(toPrint.length() - 1);
+		toPrint.append("]");
+		System.out.print(toPrint.toString());
+	}
+
 	public static void printByteArray(byte[] arr) {
 		StringBuilder toPrint = new StringBuilder("[");
 		for (byte b : arr)
 			toPrint.append(String.format("%02x ", b));
-		toPrint.deleteCharAt(toPrint.length()-1);
+		toPrint.deleteCharAt(toPrint.length() - 1);
 		toPrint.append("]");
 		System.out.print(toPrint.toString());
+	}
+	public static void swapHalves(byte[] in) {
+		int i=0,j=in.length/2;
+		while(i<in.length/2) {
+			swap(in,i,j);
+			i++;
+			j++;
+		}
+	}
+	private static void swap(byte[] a, int i, int j) {
+		byte temp = a[i];
+		a[i] = a[j];
+		a[j] = temp;
 	}
 }

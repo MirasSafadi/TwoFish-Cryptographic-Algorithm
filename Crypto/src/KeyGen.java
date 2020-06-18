@@ -8,9 +8,11 @@ public class KeyGen {
 	private ArrayList<byte[]> S;
 	private ArrayList<byte[]> K; 
 	
-	public KeyGen(String key) {
+	public KeyGen(String key) throws IllegalArgumentException {
 //		this.key = key;
-		this.key = StaticMethods.hexStringToByteArray(StaticMethods.StringToHex(key));
+		if(key.length() > 16)
+			throw new IllegalArgumentException("key must be 16 characters or less");
+		this.key = StaticMethods.hexStringToByteArrayList(StaticMethods.StringToHex(key)).get(0);
 		//should validate that key is 16 bytes, if not pad with leading zeros 
 		this.S = new ArrayList<>();
 		this.K = new ArrayList<>();

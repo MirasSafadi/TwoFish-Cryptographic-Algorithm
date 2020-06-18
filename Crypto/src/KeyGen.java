@@ -19,6 +19,7 @@ public class KeyGen {
 		generate_K_keySet();
 	}
 	
+
 	public byte[] getWhiteningSubkey(boolean isInput ) {
 		ArrayList<byte[]> ret = new ArrayList<>(4);
 		if(isInput) {

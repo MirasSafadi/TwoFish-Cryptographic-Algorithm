@@ -19,7 +19,7 @@ public class twofish {
 		System.out.println("Original: ");
 		StaticMethods.printByteArrayList(this.plainText);
 		for(byte[] bs : plainText) {
-			System.err.printf("%nBlock %d: ",plainText.indexOf(bs));
+			System.out.printf("%nBlock %d: ",plainText.indexOf(bs));
 			byte res[] = Whitening(bs,key.getWhiteningSubkey(true));
 			System.out.println("\nInput Whitening:");
 			StaticMethods.printByteArray(res);
@@ -28,14 +28,18 @@ public class twofish {
 				res = twofishRound(res, i);
 				System.out.println("\nRound " + (i + 1) + ":");
 				StaticMethods.printByteArray(res);
+				res = new byte[] {res[2],res[3],res[0],res[1]};
 			}
+			
+			
+			res = new byte[] {res[2],res[3],res[0],res[1]};
 			res = Whitening(res,key.getWhiteningSubkey(false));
 			System.out.println("\nOutput Whitening:");
 			StaticMethods.printByteArray(res);
 			
-			StaticMethods.swapHalves(res);
-			System.out.println("\nSwapping:");
-			StaticMethods.printByteArray(res);
+//			StaticMethods.swapHalves(res);
+//			System.out.println("\nSwapping:");
+//			StaticMethods.printByteArray(res);
 			
 			cypherText.append(new String(res, StandardCharsets.UTF_8));
 		}
